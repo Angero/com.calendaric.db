@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	// Сначала  все запрещаем
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    // Потом открываем всем доступ к коллекции z
+    match /z/{z} {
+      allow read, write;
+    }
+    // Потом открываем всем доступ к коллекции z1
+    match /z1/{z1} {
+      allow read, write;
+    }
+    // Потом открываем всем доступ к коллекции z2
+    match /z2/{z2} {
+      allow read, write;
+    }
+    // Потом открываем всем доступ к коллекции z2
+    match /w/{w} {
+      allow read, write;
+    }
+    // Потом разрешаем авторизованным пользователям доступ 
+    // только к той коллекции, имя которой совпадает с
+    // идентификатором пользователя. Короче, каждому
+    // пользователю доступна только одна коллекция.
+    // Обязательно нужно включить проверку того, была авторизация
+    // или нет (request.auth != null). Если не сделать будут
+    // ошибки.
+    match /{collectionName}/{docId} {
+      allow read, write: if request.auth != null && collectionName == request.auth.uid;
+    }
+  }
+}
